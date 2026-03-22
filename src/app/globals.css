@@ -463,10 +463,10 @@ body::before {
 .footer-links a:hover { color: var(--accent); }
 
 /* GSAP animation ready classes */
-.fade-up { opacity: 0; transform: translateY(30px); }
-.fade-in { opacity: 0; }
-.slide-left { opacity: 0; transform: translateX(-30px); }
-.stagger-item { opacity: 0; transform: translateY(20px); }
+.fade-up { opacity: 1; transform: translateY(30px); }
+.fade-in { opacity: 1; }
+.slide-left { opacity: 1; transform: translateX(-30px); }
+.stagger-item { opacity: 1; transform: translateY(20px); }
 
 /* Responsive */
 @media (max-width: 768px) {
