@@ -23,7 +23,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
-          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -48,9 +47,5 @@ jobs:
             echo "No new articles to commit"
             exit 0
           fi
-          git stash
-          git pull origin main
-          git stash pop
-          git add posts/
           git commit -m "🤖 Auto-publish: $(date +'%Y-%m-%d %H:%M') batch"
-          git push origin main
+          git push origin HEAD:main --force
