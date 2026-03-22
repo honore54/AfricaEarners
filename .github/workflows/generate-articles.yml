@@ -23,6 +23,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -48,4 +49,6 @@ jobs:
             exit 0
           fi
           git commit -m "🤖 Auto-publish: $(date +'%Y-%m-%d %H:%M') batch"
-          git push origin HEAD:main --force
+          git fetch origin main
+          git merge origin/main -m "merge remote" --allow-unrelated-histories
+          git push origin main
