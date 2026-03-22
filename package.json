@@ -1,0 +1,22 @@
+{
+  "name": "afriearners",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "generate": "node scripts/generate-articles.js"
+  },
+  "dependencies": {
+    "gray-matter": "^4.0.3",
+    "gsap": "^3.12.5",
+    "next": "^15.5.14",
+    "next-mdx-remote": "^6.0.0",
+    "react": "18.3.0",
+    "react-dom": "18.3.0",
+    "reading-time": "^1.5.0"
+  },
+  "devDependencies": {
+    "next-sitemap": "^4.2.3"
+  }
+}

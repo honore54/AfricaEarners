@@ -1,0 +1,46 @@
+name: Generate Articles (3x Daily)
+
+on:
+  schedule:
+    # Morning batch — 6:00 AM Kigali time (UTC+2 = 04:00 UTC)
+    - cron: '0 4 * * *'
+    # Afternoon batch — 12:00 PM Kigali time (10:00 UTC)
+    - cron: '0 10 * * *'
+    # Evening batch — 6:00 PM Kigali time (16:00 UTC)
+    - cron: '0 16 * * *'
+  # Also allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci --only=production || npm install
+
+      - name: Generate articles
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          UNSPLASH_ACCESS_KEY: ${{ secrets.UNSPLASH_ACCESS_KEY }}
+        run: node scripts/generate-articles.js
+
+      - name: Commit and push new articles
+        run: |
+          git config --local user.email "bot@afriearners.com"
+          git config --local user.name "AfriEarners Bot"
+          git add posts/
+          git diff --staged --quiet || git commit -m "🤖 Auto-publish: $(date +'%Y-%m-%d %H:%M') batch"
+          git push
