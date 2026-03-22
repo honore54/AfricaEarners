@@ -41,6 +41,7 @@ jobs:
         run: |
           git config --local user.email "bot@afriearners.com"
           git config --local user.name "AfriEarners Bot"
+          git pull origin main --rebase
           git add posts/
           git diff --staged --quiet || git commit -m "🤖 Auto-publish: $(date +'%Y-%m-%d %H:%M') batch"
           git push
