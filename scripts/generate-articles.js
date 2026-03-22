@@ -1,9 +1,15 @@
 #!/usr/bin/env node
+/**
+ * AfriEarners — Article Generation Engine v3
+ * Uses Groq API (FREE + FAST) — llama-3.3-70b-versatile
+ * + Unsplash for images (FREE)
+ */
+
 const fs = require('fs')
 const path = require('path')
 const https = require('https')
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY
+const GROQ_API_KEY = process.env.GROQ_API_KEY
 const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY
 const POSTS_DIR = path.join(process.cwd(), 'posts')
 
@@ -24,22 +30,17 @@ const TOPIC_BANK = [
   { title: "How to Build and Monetize a Website from Scratch", keyword: "build monetize website scratch", category: "blogging" },
   { title: "How to Make Money on TikTok: Complete Guide 2026", keyword: "make money tiktok 2026", category: "social-media" },
   { title: "How to Start Dropshipping for Beginners in 2026", keyword: "dropshipping beginners 2026", category: "ecommerce" },
-  { title: "How to Make Money with ChatGPT and AI Tools in 2026", keyword: "make money chatgpt ai 2026", category: "tech" },
+  { title: "How to Make Money with AI Tools in 2026", keyword: "make money ai tools 2026", category: "tech" },
   { title: "Best Side Hustles That Actually Make Real Money in 2026", keyword: "best side hustles 2026", category: "make-money" },
   { title: "How to Make Money Selling Courses Online in 2026", keyword: "sell courses online 2026", category: "ecommerce" },
   { title: "How to Get a Remote Developer Job in 2026", keyword: "remote developer job 2026", category: "tech" },
   { title: "Best Programming Languages to Learn for High Salary 2026", keyword: "best programming languages salary 2026", category: "tech" },
   { title: "How to Make Money as a Mobile App Developer in 2026", keyword: "make money mobile app developer 2026", category: "tech" },
-  { title: "How to Build a SaaS Product and Make Money in 2026", keyword: "build saas product money 2026", category: "tech" },
-  { title: "How to Make Money with Google AdMob Mobile Ads", keyword: "make money google admob", category: "tech" },
   { title: "How to Receive International Payments as a Freelancer", keyword: "receive international payments freelancer", category: "payments" },
   { title: "Payoneer vs Wise: Which is Better for Freelancers 2026", keyword: "payoneer vs wise freelancers 2026", category: "payments" },
-  { title: "Best Payment Methods for Freelancers Worldwide in 2026", keyword: "best payment methods freelancers 2026", category: "payments" },
-  { title: "How to Open a Payoneer Account: Step by Step Guide", keyword: "open payoneer account guide", category: "payments" },
-  { title: "How to Monetize Your Twitter/X Account in 2026", keyword: "monetize twitter x account 2026", category: "social-media" },
-  { title: "How to Make Money on Instagram in 2026: Full Guide", keyword: "make money instagram 2026", category: "social-media" },
+  { title: "How to Monetize Your Twitter X Account in 2026", keyword: "monetize twitter x account 2026", category: "social-media" },
+  { title: "How to Make Money on Instagram in 2026 Full Guide", keyword: "make money instagram 2026", category: "social-media" },
   { title: "How to Make Money with a Newsletter in 2026", keyword: "make money newsletter 2026", category: "social-media" },
-  { title: "How to Get Paid Brand Deals as a Small Creator", keyword: "brand deals small creator", category: "social-media" },
   { title: "How to Make Money with Print on Demand in 2026", keyword: "print on demand money 2026", category: "ecommerce" },
   { title: "Best Niches for Blogging That Make Real Money in 2026", keyword: "best niches blogging money 2026", category: "blogging" },
   { title: "How to Become a Successful Freelance Writer in 2026", keyword: "freelance writer success 2026", category: "freelancing" },
@@ -50,14 +51,19 @@ const TOPIC_BANK = [
   { title: "How to Earn Dollars Online from Rwanda in 2026", keyword: "earn dollars online rwanda 2026", category: "make-money" },
   { title: "Top Online Jobs for Students in Africa in 2026", keyword: "online jobs students africa 2026", category: "make-money" },
   { title: "How to Start a Profitable Blog from Africa in 2026", keyword: "profitable blog africa 2026", category: "blogging" },
-  { title: "How to Use Wise to Send and Receive Money Internationally", keyword: "wise international money transfer", category: "payments" },
-  { title: "Fiverr vs Upwork: Which Platform is Better in 2026", keyword: "fiverr vs upwork 2026", category: "freelancing" },
-  { title: "How to Make $500 Per Month Online as a Complete Beginner", keyword: "make 500 per month online beginner", category: "make-money" },
-  { title: "Best Free Tools Every Freelancer Needs in 2026", keyword: "free tools freelancer 2026", category: "freelancing" },
+  { title: "Fiverr vs Upwork Which Platform is Better in 2026", keyword: "fiverr vs upwork 2026", category: "freelancing" },
+  { title: "How to Make 500 Dollars Per Month Online as a Beginner", keyword: "make 500 per month online beginner", category: "make-money" },
+  { title: "How to Find High Paying Clients as a Freelancer", keyword: "find high paying clients freelancer", category: "freelancing" },
   { title: "How to Write SEO Articles That Rank on Google in 2026", keyword: "write seo articles rank google 2026", category: "blogging" },
-  { title: "How to Find High-Paying Clients as a Freelancer", keyword: "find high paying clients freelancer", category: "freelancing" },
+  { title: "Best Free Tools Every Freelancer Needs in 2026", keyword: "free tools freelancer 2026", category: "freelancing" },
   { title: "How to Make Money Translating Documents Online", keyword: "make money translating online", category: "make-money" },
-  { title: "Best Platforms to Sell Your Skills Online in 2026", keyword: "platforms sell skills online 2026", category: "freelancing" },
+  { title: "How to Build a SaaS Product and Make Money in 2026", keyword: "build saas product money 2026", category: "tech" },
+  { title: "How to Get Paid Brand Deals as a Small Creator", keyword: "brand deals small creator", category: "social-media" },
+  { title: "How to Make Money with Stock Photography in 2026", keyword: "make money stock photography 2026", category: "make-money" },
+  { title: "How to Grow a YouTube Channel Fast in 2026", keyword: "grow youtube channel fast 2026", category: "social-media" },
+  { title: "How Rwandan Developers Are Getting Hired by US Companies", keyword: "rwandan developers hired us companies", category: "tech" },
+  { title: "Best VPNs for Rwanda and Africa in 2026", keyword: "best vpn rwanda africa 2026", category: "tech" },
+  { title: "How to Use Wise to Send and Receive Money Internationally", keyword: "wise international money transfer guide", category: "payments" },
 ]
 
 function slugify(text) {
@@ -69,20 +75,16 @@ function getRandomTopics(count = 6) {
   return shuffled.slice(0, count)
 }
 
-function httpsPost(url, body) {
+function httpsPost(hostname, path, body, headers) {
   return new Promise((resolve, reject) => {
     const bodyStr = JSON.stringify(body)
-    const urlObj = new URL(url)
-    const options = {
-      hostname: urlObj.hostname,
-      path: urlObj.pathname + urlObj.search,
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr) }
-    }
-    const req = https.request(options, (res) => {
+    const req = https.request({
+      hostname, path, method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(bodyStr), ...headers }
+    }, (res) => {
       let data = ''
       res.on('data', chunk => data += chunk)
-      res.on('end', () => { try { resolve(JSON.parse(data)) } catch { resolve(data) } })
+      res.on('end', () => { try { resolve(JSON.parse(data)) } catch { resolve({ raw: data }) } })
     })
     req.on('error', reject)
     req.write(bodyStr)
@@ -95,7 +97,7 @@ function httpsGet(url) {
     https.get(url, { headers: { 'User-Agent': 'AfriEarners-Bot/1.0' } }, (res) => {
       let data = ''
       res.on('data', chunk => data += chunk)
-      res.on('end', () => { try { resolve(JSON.parse(data)) } catch { resolve(data) } })
+      res.on('end', () => { try { resolve(JSON.parse(data)) } catch { resolve({}) } })
     }).on('error', reject)
   })
 }
@@ -103,82 +105,81 @@ function httpsGet(url) {
 async function generateArticle(topic) {
   console.log(`  📝 Writing: ${topic.title}`)
 
-  const prompt = `You are a world-class SEO content writer. Write a complete, detailed article for AfriEarners.com.
+  const prompt = `You are a world-class SEO content writer. Write a complete, detailed, helpful article for AfriEarners.com.
 
 TOPIC: ${topic.title}
 FOCUS KEYWORD: "${topic.keyword}"
-AUDIENCE: Global audience worldwide — anyone wanting to earn money online
-TONE: Expert, practical, friendly mentor
-LENGTH: 1500-2000 words — every section FULLY written with complete details
+AUDIENCE: Global audience — anyone worldwide wanting to earn money online
+LENGTH: Write at least 1200 words of real, complete content
 
-RULES:
-- Every section must have REAL, COMPLETE content — absolutely NO empty sections or placeholders
-- Include specific step-by-step instructions a beginner can follow
-- Include realistic earnings with honest context
-- Include specific tools and platforms with explanations
-- Focus keyword must appear naturally 5-7 times
-- Write content that genuinely helps the reader succeed
+CRITICAL: Write EVERY section in FULL. No placeholders. No "coming soon". Real, helpful content only.
 
-STRUCTURE (write every section in full):
+Write the article in this exact structure:
 
-Write an opening paragraph that hooks the reader with a compelling fact, includes the focus keyword, and tells them exactly what they will learn.
+Start with an engaging opening paragraph that includes the focus keyword and tells readers what they will learn.
 
-## What Is [Topic] and Why It Matters in 2026
-Full explanation of the concept. Why now? What opportunity?
+## What Is ${topic.title.split(':')[0]} and Why It Matters
+Write 2-3 full paragraphs explaining this topic clearly.
 
 ## What You Need to Get Started
-Everything needed — tools, accounts, skills, money. Honest about requirements.
+Write a full paragraph introduction then list requirements as bullet points with explanations.
 
-## Step-by-Step Guide to Get Started
-At least 6 numbered steps. Each step has 2-4 sentences of real explanation.
+## Step-by-Step Guide
+Write at least 6 numbered steps. Each step needs 2-3 sentences of real explanation.
 
-## How Much Can You Realistically Earn?
-Honest earning ranges. Beginner vs experienced. Real timeline. No fake promises.
+## How Much Can You Realistically Earn
+Write honest earnings with context. Include beginner, intermediate, and advanced ranges.
 
-## 5 Tips to Succeed Faster Than Most People
-Specific, actionable tips most guides skip. Real insider knowledge.
+## 5 Tips to Succeed Faster
+Write 5 specific tips as numbered list with 2 sentences each.
 
-## Common Mistakes That Will Slow You Down
-At least 4 specific mistakes with why they happen and how to avoid them.
+## Common Mistakes to Avoid
+Write 4 common mistakes as bullet points with explanation of why and how to avoid.
 
-## Best Tools and Resources to Use
-5 specific tools/platforms. One sentence on what each does and why it helps.
+## Best Tools and Resources
+List 5 specific tools with one sentence explaining each.
 
-## Your Action Plan: Start Today
-Clear summary. One specific action to take TODAY. Honest, motivating conclusion.
+## Your Next Step
+Write a motivating conclusion paragraph with one specific action to take today.
 
-Return ONLY a JSON object, no markdown backticks:
-{
-  "title": "SEO optimized title with focus keyword",
-  "metaDescription": "150-158 chars with focus keyword and reason to click",
-  "content": "complete 1500-2000 word article in markdown with ## headings, **bold**, numbered and bullet lists",
-  "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
-  "readTime": "X min read",
-  "excerpt": "2-3 sentence summary"
-}`
+Write the full article now in markdown format. Use ## for headings, **bold** for emphasis, numbered lists and bullet points where appropriate.`
 
   const response = await httpsPost(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+    'api.groq.com',
+    '/openai/v1/chat/completions',
     {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 4096 }
-    }
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are an expert content writer who writes complete, detailed, helpful articles. Never write placeholder text. Always write full, complete content.'
+        },
+        { role: 'user', content: prompt }
+      ],
+      max_tokens: 4000,
+      temperature: 0.7
+    },
+    { 'Authorization': `Bearer ${GROQ_API_KEY}` }
   )
 
-  const raw = response.candidates?.[0]?.content?.parts?.[0]?.text || ''
-  const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
+  const content = response.choices?.[0]?.message?.content || ''
 
-  try {
-    return JSON.parse(cleaned)
-  } catch {
-    return {
-      title: topic.title,
-      metaDescription: `Complete guide to ${topic.keyword}. Step by step instructions to get started and earn money online in 2026.`,
-      content: cleaned,
-      tags: [topic.category, 'make-money-online', 'earn-online', '2026'],
-      readTime: '8 min read',
-      excerpt: `Everything you need to know about ${topic.keyword} in 2026.`
-    }
+  if (!content || content.length < 100) {
+    console.log(`  ⚠️  Short response: ${content.length} chars`)
+    console.log('  Error:', JSON.stringify(response.error || response).substring(0, 200))
+    return null
+  }
+
+  // Generate meta description from first 160 chars of content
+  const firstPara = content.replace(/^##.*/gm, '').replace(/\*\*/g, '').trim().substring(0, 158)
+  
+  return {
+    title: topic.title,
+    metaDescription: firstPara.substring(0, 158),
+    content: content,
+    tags: [topic.category, 'make-money-online', 'earn-online', '2026'],
+    readTime: Math.ceil(content.split(' ').length / 200) + ' min read',
+    excerpt: firstPara.substring(0, 200)
   }
 }
 
@@ -197,8 +198,8 @@ async function fetchImage(topic) {
     return defaults[topic.category] || defaults['make-money']
   }
   try {
-    const searchQuery = encodeURIComponent(topic.keyword.split(' ').slice(0, 3).join(' '))
-    const data = await httpsGet(`https://api.unsplash.com/search/photos?query=${searchQuery}&per_page=1&orientation=landscape&client_id=${UNSPLASH_ACCESS_KEY}`)
+    const q = encodeURIComponent(topic.keyword.split(' ').slice(0, 3).join(' '))
+    const data = await httpsGet(`https://api.unsplash.com/search/photos?query=${q}&per_page=1&orientation=landscape&client_id=${UNSPLASH_ACCESS_KEY}`)
     return data.results?.[0]?.urls?.regular || defaults[topic.category] || defaults['make-money']
   } catch {
     return defaults[topic.category] || defaults['make-money']
@@ -216,29 +217,30 @@ function saveArticle(topic, article, imageUrl) {
 title: "${(article.title || topic.title).replace(/"/g, "'")}"
 date: "${date}"
 slug: "${slug}"
-description: "${(article.metaDescription || '').replace(/"/g, "'")}"
+description: "${(article.metaDescription || '').replace(/"/g, "'").substring(0, 158)}"
 category: "${topic.category}"
 tags: ["${tags}"]
 image: "${imageUrl}"
 readTime: "${article.readTime || '8 min read'}"
 keyword: "${topic.keyword}"
 author: "AfriEarners Team"
-excerpt: "${(article.excerpt || article.metaDescription || '').replace(/"/g, "'")}"
+excerpt: "${(article.excerpt || '').replace(/"/g, "'").substring(0, 200)}"
 ---
 
-${article.content || ''}
+${article.content}
 `
   if (!fs.existsSync(POSTS_DIR)) fs.mkdirSync(POSTS_DIR, { recursive: true })
   fs.writeFileSync(filepath, mdxContent, 'utf8')
-  console.log(`  ✅ Saved: ${filename}`)
+  console.log(`  ✅ Saved: ${filename} (${article.content.length} chars)`)
   return filename
 }
 
 async function main() {
-  console.log('\n🚀 AfriEarners Article Engine v2 — Worldwide Topics')
+  console.log('\n🚀 AfriEarners Article Engine v3 — Powered by Groq')
   console.log('====================================================')
-  if (!GEMINI_API_KEY || GEMINI_API_KEY === 'your_gemini_api_key_here') {
-    console.error('❌ GEMINI_API_KEY not set.')
+  if (!GROQ_API_KEY) {
+    console.error('❌ GROQ_API_KEY not set.')
+    console.error('   Get yours FREE at: console.groq.com')
     process.exit(1)
   }
   const topics = getRandomTopics(6)
@@ -247,10 +249,11 @@ async function main() {
   for (const topic of topics) {
     try {
       const article = await generateArticle(topic)
+      if (!article) { console.log(`  ⏭️  Skipping ${topic.title}`); continue }
       const imageUrl = await fetchImage(topic)
       const filename = saveArticle(topic, article, imageUrl)
       if (filename) results.push(filename)
-      await new Promise(r => setTimeout(r, 2000))
+      await new Promise(r => setTimeout(r, 1000))
     } catch (err) {
       console.error(`  ❌ Failed: ${topic.title} — ${err.message}`)
     }
