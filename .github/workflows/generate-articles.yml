@@ -19,6 +19,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
+          ref: main
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -27,6 +28,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --only=production || npm install
+
+      - name: Pull latest before generating
+        run: git pull origin main
 
       - name: Generate articles
         env:
@@ -44,5 +48,4 @@ jobs:
             exit 0
           fi
           git commit -m "🤖 Auto-publish: $(date +'%Y-%m-%d %H:%M') batch"
-          git pull --rebase origin main
-          git push origin main
+          git push --force-with-lease origin main
