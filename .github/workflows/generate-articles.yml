@@ -2,13 +2,9 @@ name: Generate Articles (3x Daily)
 
 on:
   schedule:
-    # Morning batch — 6:00 AM Kigali time (UTC+2 = 04:00 UTC)
     - cron: '0 4 * * *'
-    # Afternoon batch — 12:00 PM Kigali time (10:00 UTC)
     - cron: '0 10 * * *'
-    # Evening batch — 6:00 PM Kigali time (16:00 UTC)
     - cron: '0 16 * * *'
-  # Also allow manual trigger from GitHub Actions tab
   workflow_dispatch:
 
 jobs:
@@ -22,6 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -41,7 +38,8 @@ jobs:
         run: |
           git config --local user.email "bot@afriearners.com"
           git config --local user.name "AfriEarners Bot"
-          git pull origin main --rebase
+          git fetch origin main
+          git reset --soft origin/main
           git add posts/
           git diff --staged --quiet || git commit -m "🤖 Auto-publish: $(date +'%Y-%m-%d %H:%M') batch"
-          git push
+          git push origin main
