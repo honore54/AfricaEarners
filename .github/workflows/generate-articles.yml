@@ -38,8 +38,11 @@ jobs:
         run: |
           git config --local user.email "bot@afriearners.com"
           git config --local user.name "AfriEarners Bot"
-          git fetch origin main
-          git reset --soft origin/main
           git add posts/
-          git diff --staged --quiet || git commit -m "🤖 Auto-publish: $(date +'%Y-%m-%d %H:%M') batch"
+          if git diff --staged --quiet; then
+            echo "No new articles to commit"
+            exit 0
+          fi
+          git commit -m "🤖 Auto-publish: $(date +'%Y-%m-%d %H:%M') batch"
+          git pull --rebase origin main
           git push origin main
