@@ -1,6 +1,6 @@
 import './globals.css'
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://afriearners.vercel.app'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://africa-earners.vercel.app'
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
@@ -40,15 +40,13 @@ export const metadata = {
     },
   },
   verification: {
-    // Add your Google Search Console verification code here after signup
-    // google: 'YOUR_GOOGLE_VERIFICATION_CODE',
+    google: 'RXhOMJ8rXHLeAMct1d0MBTmTUun7ggrTNjsTIliAqiE',
   },
   alternates: {
     canonical: siteUrl,
   },
 }
 
-// Global JSON-LD for the whole site (organization schema)
 const organizationSchema = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
@@ -79,7 +77,6 @@ export default function RootLayout({ children }) {
         <link rel="canonical" href={siteUrl} />
         <meta name="theme-color" content="#060811" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        {/* Global structured data */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
@@ -88,10 +85,6 @@ export default function RootLayout({ children }) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
-        {/* 
-          ADSENSE: After approval, add your AdSense script here:
-          <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossOrigin="anonymous"></script>
-        */}
       </head>
       <body>
         <div className="orb orb-1" />
