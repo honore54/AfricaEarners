@@ -141,7 +141,7 @@ export default function Home() {
             {[
               { icon: '🌍', title: 'Africa-Focused', desc: 'Every article considers Rwandan and African realities — local payments, local challenges, real solutions.' },
               { icon: '💰', title: 'Dollar Earnings', desc: 'We focus on strategies that pay in USD, not local currency. Payoneer, Wise, and global platforms.' },
-              { icon: '🤖', title: 'Updated Daily', desc: 'Our AI publishes 18 fresh articles every day. Always current, always relevant to what people search.' },
+              { icon: '🤖', title: 'Updated Daily', desc: 'New articles published daily — always current, always practical. Always current, always relevant to what people search.' },
               { icon: '🛠️', title: 'Developer-Friendly', desc: 'Technical guides built by a developer, for developers. Real code, real tools, real results.' },
             ].map((f, i) => (
               <div key={i} className="stagger-item" style={{

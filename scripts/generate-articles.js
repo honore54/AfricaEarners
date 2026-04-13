@@ -1,17 +1,11 @@
 #!/usr/bin/env node
-/**
- * AfriEarners — Article Generation Engine v3
- * Uses Groq API (FREE + FAST) — llama-3.3-70b-versatile
- * + Unsplash for images (FREE)
- */
-
-const fs = require('fs')
+const fs   = require('fs')
 const path = require('path')
 const https = require('https')
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY
+const GROQ_API_KEY       = process.env.GROQ_API_KEY
 const UNSPLASH_ACCESS_KEY = process.env.UNSPLASH_ACCESS_KEY
-const POSTS_DIR = path.join(process.cwd(), 'posts')
+const POSTS_DIR          = path.join(process.cwd(), 'posts')
 
 const TOPIC_BANK = [
   { title: "How to Make Money Online in 2026: 15 Proven Methods", keyword: "make money online 2026", category: "make-money" },
@@ -35,7 +29,6 @@ const TOPIC_BANK = [
   { title: "How to Make Money Selling Courses Online in 2026", keyword: "sell courses online 2026", category: "ecommerce" },
   { title: "How to Get a Remote Developer Job in 2026", keyword: "remote developer job 2026", category: "tech" },
   { title: "Best Programming Languages to Learn for High Salary 2026", keyword: "best programming languages salary 2026", category: "tech" },
-  { title: "How to Make Money as a Mobile App Developer in 2026", keyword: "make money mobile app developer 2026", category: "tech" },
   { title: "How to Receive International Payments as a Freelancer", keyword: "receive international payments freelancer", category: "payments" },
   { title: "Payoneer vs Wise: Which is Better for Freelancers 2026", keyword: "payoneer vs wise freelancers 2026", category: "payments" },
   { title: "How to Monetize Your Twitter X Account in 2026", keyword: "monetize twitter x account 2026", category: "social-media" },
@@ -45,25 +38,18 @@ const TOPIC_BANK = [
   { title: "Best Niches for Blogging That Make Real Money in 2026", keyword: "best niches blogging money 2026", category: "blogging" },
   { title: "How to Become a Successful Freelance Writer in 2026", keyword: "freelance writer success 2026", category: "freelancing" },
   { title: "How to Receive Payoneer Payments in Rwanda Step by Step", keyword: "payoneer rwanda guide", category: "payments" },
-  { title: "Best Freelance Websites That Pay in Dollars for Africans", keyword: "freelance websites pay dollars africans", category: "freelancing" },
-  { title: "How to Make Money as a Software Developer in Africa", keyword: "software developer make money africa", category: "tech" },
-  { title: "How to Get Remote Jobs from Africa in 2026", keyword: "remote jobs from africa 2026", category: "freelancing" },
-  { title: "How to Earn Dollars Online from Rwanda in 2026", keyword: "earn dollars online rwanda 2026", category: "make-money" },
-  { title: "Top Online Jobs for Students in Africa in 2026", keyword: "online jobs students africa 2026", category: "make-money" },
-  { title: "How to Start a Profitable Blog from Africa in 2026", keyword: "profitable blog africa 2026", category: "blogging" },
-  { title: "Fiverr vs Upwork Which Platform is Better in 2026", keyword: "fiverr vs upwork 2026", category: "freelancing" },
-  { title: "How to Make 500 Dollars Per Month Online as a Beginner", keyword: "make 500 per month online beginner", category: "make-money" },
-  { title: "How to Find High Paying Clients as a Freelancer", keyword: "find high paying clients freelancer", category: "freelancing" },
-  { title: "How to Write SEO Articles That Rank on Google in 2026", keyword: "write seo articles rank google 2026", category: "blogging" },
-  { title: "Best Free Tools Every Freelancer Needs in 2026", keyword: "free tools freelancer 2026", category: "freelancing" },
-  { title: "How to Make Money Translating Documents Online", keyword: "make money translating online", category: "make-money" },
-  { title: "How to Build a SaaS Product and Make Money in 2026", keyword: "build saas product money 2026", category: "tech" },
-  { title: "How to Get Paid Brand Deals as a Small Creator", keyword: "brand deals small creator", category: "social-media" },
-  { title: "How to Make Money with Stock Photography in 2026", keyword: "make money stock photography 2026", category: "make-money" },
-  { title: "How to Grow a YouTube Channel Fast in 2026", keyword: "grow youtube channel fast 2026", category: "social-media" },
-  { title: "How Rwandan Developers Are Getting Hired by US Companies", keyword: "rwandan developers hired us companies", category: "tech" },
-  { title: "Best VPNs for Rwanda and Africa in 2026", keyword: "best vpn rwanda africa 2026", category: "tech" },
-  { title: "How to Use Wise to Send and Receive Money Internationally", keyword: "wise international money transfer guide", category: "payments" },
+  { title: "Best Freelance Websites That Pay in Dollars for Africans", keyword: "freelance websites dollars africa", category: "freelancing" },
+  { title: "How to Make Money as a Software Developer in Africa", keyword: "software developer income africa", category: "tech" },
+  { title: "How to Get Remote Jobs from Africa in 2026", keyword: "remote jobs africa 2026", category: "freelancing" },
+  { title: "How to Earn Dollars Online from Rwanda in 2026", keyword: "earn dollars online rwanda", category: "make-money" },
+  { title: "Top Online Jobs for Students in Africa in 2026", keyword: "online jobs students africa", category: "make-money" },
+  { title: "How to Start a Profitable Blog from Africa in 2026", keyword: "profitable blog africa", category: "blogging" },
+  { title: "Fiverr vs Upwork Which Platform is Better in 2026", keyword: "fiverr vs upwork comparison", category: "freelancing" },
+  { title: "How to Make 500 Dollars Per Month Online as a Beginner", keyword: "500 dollars per month online", category: "make-money" },
+  { title: "How to Write SEO Articles That Rank on Google in 2026", keyword: "write seo articles google", category: "blogging" },
+  { title: "How to Build a SaaS Product and Make Money in 2026", keyword: "build saas product income", category: "tech" },
+  { title: "How to Grow a YouTube Channel Fast in 2026", keyword: "grow youtube channel fast", category: "social-media" },
+  { title: "How to Use Wise to Send and Receive Money Internationally", keyword: "wise international money transfer", category: "payments" },
 ]
 
 function slugify(text) {
@@ -71,7 +57,11 @@ function slugify(text) {
 }
 
 function getRandomTopics(count = 6) {
-  const shuffled = [...TOPIC_BANK].sort(() => Math.random() - 0.5)
+  const existing = fs.existsSync(POSTS_DIR)
+    ? fs.readdirSync(POSTS_DIR).map(f => f.replace(/^\d{4}-\d{2}-\d{2}-/, '').replace(/\.mdx?$/, ''))
+    : []
+  const available = TOPIC_BANK.filter(t => !existing.includes(slugify(t.title)))
+  const shuffled  = available.sort(() => Math.random() - 0.5)
   return shuffled.slice(0, count)
 }
 
@@ -94,7 +84,7 @@ function httpsPost(hostname, path, body, headers) {
 
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
-    https.get(url, { headers: { 'User-Agent': 'AfriEarners-Bot/1.0' } }, (res) => {
+    https.get(url, { headers: { 'User-Agent': 'AfriEarners/1.0' } }, (res) => {
       let data = ''
       res.on('data', chunk => data += chunk)
       res.on('end', () => { try { resolve(JSON.parse(data)) } catch { resolve({}) } })
@@ -105,44 +95,53 @@ function httpsGet(url) {
 async function generateArticle(topic) {
   console.log(`  📝 Writing: ${topic.title}`)
 
-  const prompt = `You are a world-class SEO content writer. Write a complete, detailed, helpful article for AfriEarners.com.
+  const prompt = `You are an expert content writer for AfriEarners.com — a practical guide for Africans earning money online.
 
-TOPIC: ${topic.title}
-FOCUS KEYWORD: "${topic.keyword}"
-AUDIENCE: Global audience — anyone worldwide wanting to earn money online
-LENGTH: Write at least 1200 words of real, complete content
+Write a complete, helpful, human-quality article about: "${topic.title}"
+Target keyword: "${topic.keyword}"
+Audience: Africans and Rwandans who want to earn money online
 
-CRITICAL: Write EVERY section in FULL. No placeholders. No "coming soon". Real, helpful content only.
+CRITICAL WRITING RULES:
+- Use the target keyword naturally — only 2-3 times maximum in the entire article
+- NEVER repeat the keyword excessively or unnaturally
+- Write like a knowledgeable human journalist, not a robot
+- Use varied sentence lengths — mix short punchy sentences with longer explanatory ones
+- Include specific, real examples, platforms, and dollar amounts
+- Be honest about challenges, not just opportunities
+- Total length: 1200-1500 words
 
-Write the article in this exact structure:
+ARTICLE STRUCTURE:
+Write an engaging opening paragraph (no heading) that hooks the reader and includes the keyword once naturally.
 
-Start with an engaging opening paragraph that includes the focus keyword and tells readers what they will learn.
-
-## What Is ${topic.title.split(':')[0]} and Why It Matters
-Write 2-3 full paragraphs explaining this topic clearly.
+## Why This Matters for Africans
+2-3 paragraphs explaining the African context — what makes this topic specifically relevant to people in Rwanda, Kenya, Nigeria etc. Include real payment methods that work in Africa.
 
 ## What You Need to Get Started
-Write a full paragraph introduction then list requirements as bullet points with explanations.
+A practical intro paragraph followed by a clear bullet list of requirements with brief explanations.
 
 ## Step-by-Step Guide
-Write at least 6 numbered steps. Each step needs 2-3 sentences of real explanation.
+At least 6 numbered steps, each with 2-3 sentences of real, actionable explanation.
 
-## How Much Can You Realistically Earn
-Write honest earnings with context. Include beginner, intermediate, and advanced ranges.
+## Realistic Earnings to Expect
+Honest earnings breakdown:
+- Beginner (0-6 months): realistic range
+- Intermediate (6-18 months): realistic range  
+- Advanced (18+ months): realistic range
+Include context about why earnings vary.
 
-## 5 Tips to Succeed Faster
-Write 5 specific tips as numbered list with 2 sentences each.
+## 5 Tips That Actually Work
+5 specific, actionable tips as numbered list. Each tip needs 2 sentences of real explanation.
 
-## Common Mistakes to Avoid
-Write 4 common mistakes as bullet points with explanation of why and how to avoid.
+## Mistakes Most Beginners Make
+4 common mistakes as bullet points with brief explanation of how to avoid each.
 
-## Best Tools and Resources
-List 5 specific tools with one sentence explaining each.
+## Tools You Will Actually Need
+5 specific tools with one sentence each explaining why it matters.
 
-## Your Next Step
-Write a motivating conclusion paragraph with one specific action to take today.
+## Start Today
+A motivating but honest conclusion paragraph with one specific first action to take.
 
-Write the full article now in markdown format. Use ## for headings, **bold** for emphasis, numbered lists and bullet points where appropriate.`
+Write the full article now in clean markdown. No placeholders. Real content only.`
 
   const response = await httpsPost(
     'api.groq.com',
@@ -150,70 +149,69 @@ Write the full article now in markdown format. Use ## for headings, **bold** for
     {
       model: 'llama-3.3-70b-versatile',
       messages: [
-        {
-          role: 'system',
-          content: 'You are an expert content writer who writes complete, detailed, helpful articles. Never write placeholder text. Always write full, complete content.'
-        },
+        { role: 'system', content: 'You are an expert human content writer. Write naturally with varied sentence structure. Never stuff keywords. Write complete, helpful content.' },
         { role: 'user', content: prompt }
       ],
       max_tokens: 4000,
-      temperature: 0.7
+      temperature: 0.75
     },
     { 'Authorization': `Bearer ${GROQ_API_KEY}` }
   )
 
   const content = response.choices?.[0]?.message?.content || ''
-
-  if (!content || content.length < 100) {
-    console.log(`  ⚠️  Short response: ${content.length} chars`)
-    console.log('  Error:', JSON.stringify(response.error || response).substring(0, 200))
+  if (!content || content.length < 500) {
+    console.log(`  ⚠️  Short: ${content.length} chars`)
     return null
   }
 
-  // Generate meta description from first 160 chars of content
   const firstPara = content.replace(/^##.*/gm, '').replace(/\*\*/g, '').trim().substring(0, 158)
-  
+
   return {
-    title: topic.title,
-    metaDescription: firstPara.substring(0, 158),
-    content: content,
-    tags: [topic.category, 'make-money-online', 'earn-online', '2026'],
-    readTime: Math.ceil(content.split(' ').length / 200) + ' min read',
-    excerpt: firstPara.substring(0, 200)
+    title:           topic.title,
+    metaDescription: firstPara,
+    content,
+    tags:            [topic.category, 'earn-online', 'africa'],
+    readTime:        Math.ceil(content.split(' ').length / 200) + ' min read',
+    excerpt:         firstPara.substring(0, 200)
   }
 }
 
 async function fetchImage(topic) {
   const defaults = {
-    'tech': 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200',
-    'freelancing': 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200',
-    'make-money': 'https://images.unsplash.com/photo-1579621970588-a35d0e7ab9b6?w=1200',
-    'blogging': 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200',
-    'payments': 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200',
-    'social-media': 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=1200',
-    'ecommerce': 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200',
-    'crypto': 'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=1200',
+    'tech':         'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&q=85',
+    'freelancing':  'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=85',
+    'make-money':   'https://images.unsplash.com/photo-1579621970588-a35d0e7ab9b6?w=1200&q=85',
+    'blogging':     'https://images.unsplash.com/photo-1499750310107-5fef28a66643?w=1200&q=85',
+    'payments':     'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&q=85',
+    'social-media': 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?w=1200&q=85',
+    'ecommerce':    'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=1200&q=85',
+    'crypto':       'https://images.unsplash.com/photo-1518546305927-5a555bb7020d?w=1200&q=85',
   }
-  if (!UNSPLASH_ACCESS_KEY || UNSPLASH_ACCESS_KEY === 'your_unsplash_key_here') {
-    return defaults[topic.category] || defaults['make-money']
-  }
+  if (!UNSPLASH_ACCESS_KEY) return defaults[topic.category] || defaults['make-money']
   try {
-    const q = encodeURIComponent(topic.keyword.split(' ').slice(0, 3).join(' '))
-    const data = await httpsGet(`https://api.unsplash.com/search/photos?query=${q}&per_page=1&orientation=landscape&client_id=${UNSPLASH_ACCESS_KEY}`)
-    return data.results?.[0]?.urls?.regular || defaults[topic.category] || defaults['make-money']
+    const q    = encodeURIComponent(topic.keyword.split(' ').slice(0, 3).join(' '))
+    const data = await httpsGet(`https://api.unsplash.com/search/photos?query=${q}&per_page=5&orientation=landscape&content_filter=high&client_id=${UNSPLASH_ACCESS_KEY}`)
+    const photos = (data.results || []).filter(p => p.width >= 1000)
+    if (photos.length > 0) {
+      const photo = photos[Math.floor(Math.random() * Math.min(3, photos.length))]
+      return photo.urls.regular + '&w=1200&q=85'
+    }
+    return defaults[topic.category] || defaults['make-money']
   } catch {
     return defaults[topic.category] || defaults['make-money']
   }
 }
 
 function saveArticle(topic, article, imageUrl) {
-  const slug = slugify(article.title || topic.title)
-  const date = new Date().toISOString().split('T')[0]
+  const slug     = slugify(article.title || topic.title)
+  const date     = new Date().toISOString().split('T')[0]
   const filename = `${date}-${slug}.mdx`
   const filepath = path.join(POSTS_DIR, filename)
-  if (fs.existsSync(filepath)) { console.log(`  ⏭️  Already exists: ${filename}`); return null }
+
+  if (fs.existsSync(filepath)) { console.log(`  ⏭️  Exists: ${filename}`); return null }
+
   const tags = Array.isArray(article.tags) ? article.tags.join('", "') : topic.category
-  const mdxContent = `---
+  const mdx  = `---
 title: "${(article.title || topic.title).replace(/"/g, "'")}"
 date: "${date}"
 slug: "${slug}"
@@ -221,7 +219,7 @@ description: "${(article.metaDescription || '').replace(/"/g, "'").substring(0, 
 category: "${topic.category}"
 tags: ["${tags}"]
 image: "${imageUrl}"
-readTime: "${article.readTime || '8 min read'}"
+readTime: "${article.readTime || '7 min read'}"
 keyword: "${topic.keyword}"
 author: "AfriEarners Team"
 excerpt: "${(article.excerpt || '').replace(/"/g, "'").substring(0, 200)}"
@@ -230,38 +228,34 @@ excerpt: "${(article.excerpt || '').replace(/"/g, "'").substring(0, 200)}"
 ${article.content}
 `
   if (!fs.existsSync(POSTS_DIR)) fs.mkdirSync(POSTS_DIR, { recursive: true })
-  fs.writeFileSync(filepath, mdxContent, 'utf8')
+  fs.writeFileSync(filepath, mdx, 'utf8')
   console.log(`  ✅ Saved: ${filename} (${article.content.length} chars)`)
   return filename
 }
 
 async function main() {
-  console.log('\n🚀 AfriEarners Article Engine v3 — Powered by Groq')
-  console.log('====================================================')
-  if (!GROQ_API_KEY) {
-    console.error('❌ GROQ_API_KEY not set.')
-    console.error('   Get yours FREE at: console.groq.com')
-    process.exit(1)
-  }
+  console.log('\n🚀 AfriEarners Article Engine')
+  if (!GROQ_API_KEY) { console.error('❌ GROQ_API_KEY not set'); process.exit(1) }
+
   const topics = getRandomTopics(6)
-  console.log(`\n📋 Generating ${topics.length} complete articles...\n`)
+  console.log(`📋 Generating ${topics.length} articles...\n`)
+
   const results = []
   for (const topic of topics) {
     try {
-      const article = await generateArticle(topic)
-      if (!article) { console.log(`  ⏭️  Skipping ${topic.title}`); continue }
+      const article  = await generateArticle(topic)
+      if (!article) continue
       const imageUrl = await fetchImage(topic)
       const filename = saveArticle(topic, article, imageUrl)
       if (filename) results.push(filename)
-      await new Promise(r => setTimeout(r, 1000))
+      await new Promise(r => setTimeout(r, 1500))
     } catch (err) {
       console.error(`  ❌ Failed: ${topic.title} — ${err.message}`)
     }
   }
-  console.log(`\n====================================================`)
-  console.log(`✅ Done! Generated ${results.length} new articles`)
-  console.log(`📁 Push to GitHub to auto-deploy on Vercel`)
-  console.log('====================================================\n')
+
+  console.log(`\n✅ Done! ${results.length} new articles generated`)
+  console.log('📁 Push to GitHub to deploy\n')
 }
 
 main().catch(console.error)
