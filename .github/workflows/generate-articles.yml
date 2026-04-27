@@ -49,3 +49,6 @@ jobs:
           fi
           git commit -m "🤖 Auto-publish: $(date +'%Y-%m-%d %H:%M') batch"
           git push origin main
+
+      - name: Trigger Vercel rebuild
+        run: curl -X POST "${{ secrets.VERCEL_DEPLOY_HOOK }}"
