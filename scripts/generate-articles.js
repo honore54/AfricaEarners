@@ -268,7 +268,7 @@ async function main() {
       const imageUrl = await fetchImage(topic)
       const filename = saveArticle(topic, article, imageUrl)
       if (filename) results.push(filename)
-      await new Promise(r => setTimeout(r, 1500))
+      await new Promise(r => setTimeout(r, 5000))
     } catch (err) {
       console.error(`  ❌ Failed: ${topic.title} — ${err.message}`)
     }
