@@ -257,7 +257,7 @@ async function main() {
   console.log('\n🚀 AfriEarners Article Engine')
   if (!GROQ_API_KEY) { console.error('❌ GROQ_API_KEY not set'); process.exit(1) }
 
-  const topics = getRandomTopics(6)
+  const topics = getRandomTopics(3)
   console.log(`📋 Generating ${topics.length} articles...\n`)
 
   const results = []
